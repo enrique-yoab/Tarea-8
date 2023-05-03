@@ -80,30 +80,29 @@ suma:
 
 convertir:
 	enter 0, 0
-	push eax
-	mov eax, 4
+	push eax        ;se mueve al stack el resultado de la suma de los 3 valores
+	mov eax, 4      ;linea 84 a 88 son para imprimir en pantalla "El resultado es:"
 	mov ebx, 1
 	mov ecx, msg2
 	mov edx, len2
 	int 0x80
-	pop eax
+	pop eax         ;se regresa el resultado de la suma al registro eax, dejando normal el stack
 
-	xor edx, edx
-	mov ebx, 0
-	mov ecx, 10
-	mov ebx, buffer
-	mov edi, ebx
+	xor edx, edx    ;necesario para tenerlo en 0 el registro edx
+	mov ecx, 10     ;se pone un 10 al registro eax, para ir dividiendolo e ir separando digito por digito
+	mov ebx, buffer ;se mueve a ebx la direccion del buffer
+	mov edi, ebx    ;se mueve a edi la direccion del buffer por medio de ebx
 
 convert_loop:
  	xor edx, edx   ; establecer edx en 0 para la división
-    div ecx        ; dividir eax por 10
+    div ecx        ; dividir eax por 10 y se guarda en edx, edx = eax / 10
     add edx, '0'   ; convertir el resto a su representación ASCII
-    mov [edi], dl  ; guardar el carácter ASCII en el búfer
+    mov [edi], dl  ; guardar el carácter del registro mas pequeño de edx ASCII en el búfer 
     inc edi        ; incrementar el puntero del búfer
     cmp eax, 0     ; si eax es 0, hemos terminado
-    jne convert_loop
-	leave
-	ret
+    jne convert_loop ;bucle para ir dividiendolo en 10 hasta llegar a 0
+	leave          ;quitar el stack frame
+	ret            ;regresa en donde fue llamada la funcion convertir
 
 strlen:
  cmp byte [edi + eax], 0 ;se compara con un cero ya que al terminar la cadena habra un 0
@@ -112,6 +111,8 @@ strlen:
  mov ebx, eax ;movemos el valor del tamaño al registro ebx
  jmp strlen  ;se salta a strlen para que se haga un bucle
 
+;es necesario invertir ya que la conversion del entero a ASCCI se muestra al reves,
+;por lo que se debe invertir.
 invertir:
  mov ecx, [edi + eax] ;movemos al registro ecx, la ultima letra de la cadena
  mov [esi], ecx  ;movemos a la variable aux, el valor de ecx
